@@ -18,7 +18,6 @@ def reduce_id_ranges(id_ranges: list[tuple[int]]) -> list[tuple[int]]:
             continue
         if id_range[0] <= highest_in_first_range:
             reduced_list.append((highest_in_first_range+1, id_range[1]))
-            continue
         reduced_list.append(id_range)
     return [(id_ranges[0])] + [x for x in reduce_id_ranges(reduced_list)]
 
