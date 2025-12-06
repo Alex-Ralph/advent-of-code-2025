@@ -1,4 +1,6 @@
-with open("input/day06.txt") as file:
+from dataclasses import dataclass
+
+with open("test/day06.txt") as file:
     raw_lines = file.read().splitlines()
     no_whitespace_lines = [[x for x in y.split(" ")] for y in raw_lines]
     lines = [[x for x in y if x != ''] for y in no_whitespace_lines]
@@ -13,17 +15,21 @@ char_transpose = [[line[x]
                    for line in raw_lines]
                   for x in range(len(raw_lines[0]))]
 
-equations = []
-operator = ""
-current_numbers = []
-for num_array in char_transpose:
-    if num_array[-1] != " ":
-        equations.append(operator.join(current_numbers[:-1]))
-        operator = num_array[-1]
-        current_numbers = []
-    current_numbers.append("".join(num_array[:-1]))
+operator_indices = [index for index, chars in enumerate(char_transpose) if chars[-1] != " "]
 
-equations.append(operator.join(current_numbers))
+@dataclass
+class Equation:
+    operator: str
+    operands: list[str]
 
+# if an operator applies to all numbers between columns 15 and 20, this will contain a tuple (15, 20)
+operator_ranges = zip(operator_indices, operator_indices[1:] + [len(char_transpose) + 1])
+
+transposed_equations = [Equation(char_transpose[start_col][-1], [''.join(char_transpose[column][:-1]) for column in range(start_col, end_col-1)])
+                     for start_col, end_col in operator_ranges]
+
+equations = [
+    eq.operator.join(eq.operands) for eq in transposed_equations
+]
 # part 2
-print(sum(eval(x) for x in equations[1:]))
+print(sum(eval(x) for x in equations))
